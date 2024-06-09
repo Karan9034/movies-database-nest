@@ -1,10 +1,10 @@
-import { IsNotEmpty } from "class-validator";
+import { IsDate, IsNotEmpty } from "class-validator";
 
 export class CreateMovieDto {
     @IsNotEmpty()
     title: string;
     
-    @IsNotEmpty()
+    @IsDate()
     releaseDate: Date;
 
     @IsNotEmpty()

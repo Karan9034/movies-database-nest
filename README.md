@@ -2,6 +2,36 @@
 
 # Movie Database Backend Project
 
+## API Reference 
+
+SERVER_URL: `http://localhost:8000`
+
+### App Module
+
+| Method | Endpoint | Description                    |
+| ------ | -------- | ------------------------------ |
+| `GET`  | `/`    | Returns `Server is running...` |
+
+### Auth Module
+
+| Method | Endpoint | Description                    |
+| ------ | -------- | ------------------------------ |
+| `POST`  | `/auth/login`      | Returns `JWT` token for user |
+| `POST`  | `/auth/register`   | Registers a new user         |
+| `GET`   | `/auth/profile`    | Returns user profile (protected route)        |
+
+### Movie Module
+
+| Method | Endpoint | Description                    |
+| ------ | -------- | ------------------------------ |
+| `GET`  | `/movies?search=&genre=`          | Returns all movies (or filtered by `title` or `genre`)           |
+| `GET`  | `/movies/:id`      | Returns a movie by ID        |
+| `GET`  | `/movies/top`      | Returns all movies sorted by average rating        |
+| `POST` | `/movies`          | Creates a new movie          |
+| `POST`  | `/movies/:id/rate`      | Rate a movie by ID (protected route)       |
+| `DELETE`| `/movies/:id`      | Deletes a movie by ID        |
+
+
 ## Project Overview
 
 Welcome to our Movie Database Backend project! In this project, we're developing a backend application that will serve as the foundation for our movie database. Our goal is to create a platform where users can interact with a wide variety of movies, rate them, and explore based on their interests.
