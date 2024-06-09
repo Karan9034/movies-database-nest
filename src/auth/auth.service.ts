@@ -47,6 +47,15 @@ export class AuthService {
         }
         return user;
     }
+    
+    async findUserById(id: number) {
+        const user = await this.prisma.user.findUnique({ where: { id } });
+        if (!user) {
+            return null;
+        }
+        return user;
+    }
+    
 
     async authenticate(loginUserDto: LoginUserDto) {
         const user = await this.findUserByEmail(loginUserDto.email);

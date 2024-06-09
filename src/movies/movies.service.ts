@@ -1,59 +1,73 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
-import movies from './mock_data';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class MoviesService {
-    private movies = movies;
+    constructor(private prisma: PrismaService){}
 
-    create(createMovieDto: CreateMovieDto) {
-        const newMovie = {
-            id: Date.now(),
-            ...createMovieDto,
-            rating: 0,
-        };
-        this.movies.push(newMovie);
-
-        return newMovie;
+    async create(createMovieDto: CreateMovieDto) {
+        return await this.prisma.movie.create({
+            data: createMovieDto
+        });
     }
 
-    findAll(search?: string, genre?: string) {
-        if (!search && !genre) return this.movies;
-        const result = this.movies.filter(
-            (movie: any) =>
-                movie.title.toLowerCase().includes(search?.toLowerCase()) ||
-                movie.genre.toLowerCase().includes(genre?.toLowerCase()),
-        );
+    async findAll(search?: string, genre?: string) {
+        if (!search && !genre) return await this.prisma.movie.findMany();
+        const result = await this.prisma.movie.findMany({
+            where: {
+                OR: [
+                    {
+                        title: {
+                            contains: search,
+                            mode: 'insensitive',
+                        },
+                    },
+                    {
+                        genre: {
+                            hasSome: genre ? genre.split(',') : [],
+                        },
+                    },
+                ],
+            },
+        });
         return result;
     }
 
-    findOne(id: number) {
-        const movie = this.movies.find((movie: any) => movie.id === id);
+    async findOne(id: number) {
+        const movie = await this.prisma.movie.findUnique({where: {id}});
+        if(!movie) throw new NotFoundException(`Movie with id ${id} not found`);
+        return movie;
+    }
 
-        if (!movie) {
+    async remove(id: number) {
+        try{
+            return await this.prisma.movie.delete({where: {id}});
+        } catch {
             throw new NotFoundException(`Movie with id ${id} not found`);
         }
-        return movie;
     }
 
-    update(id: number, updateMovieDto: UpdateMovieDto) {
-        this.movies = this.movies.map((movie: any) => {
-            if (movie.id === id) {
-                return {
-                    ...movie,
-                    ...updateMovieDto,
-                };
+    async rate(movieId: number, rating: number, userId: number) {
+        return await this.prisma.rating.upsert({
+            where: {
+                userId_movieId: {
+                    userId,
+                    movieId
+                },
+            },
+            update: {
+                value: rating
+            },
+            create: {
+                value: rating,
+                userId,
+                movieId,
             }
-            return movie;
-        });
-
-        return this.findOne(id);
+        })
     }
 
-    remove(id: number) {
-        const movie = this.findOne(id);
-        this.movies = this.movies.filter((movie: any) => movie.id !== id);
-        return movie;
+    async getAllRatings() {
+        return await this.prisma.rating.findMany();
     }
 }

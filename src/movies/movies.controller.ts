@@ -7,10 +7,12 @@ import {
     Delete,
     Query,
     Put,
+    Req,
+    UseGuards,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('movies')
 export class MoviesController {
@@ -31,9 +33,10 @@ export class MoviesController {
         return this.moviesService.findOne(+id);
     }
 
-    @Put(':id')
-    update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-        return this.moviesService.update(+id, updateMovieDto);
+    @UseGuards(AuthGuard)
+    @Post(':id/rate')
+    rate(@Param('id') id: string, @Body('rating') rating: number, @Req() req: Request) {
+        return this.moviesService.rate(+id, rating, req['user'].id);
     }
 
     @Delete(':id')
