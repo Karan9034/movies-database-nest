@@ -59,7 +59,6 @@ export class AuthService {
 
     async authenticate(loginUserDto: LoginUserDto) {
         const user = await this.findUserByEmail(loginUserDto.email);
-        console.log(user);
         if (!user) {
             throw new NotFoundException('User does not exist');
         } else {

@@ -9,6 +9,7 @@ import {
     Put,
     Req,
     UseGuards,
+    ParseIntPipe,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -28,19 +29,24 @@ export class MoviesController {
         return this.moviesService.findAll(search, genre);
     }
 
+    @Get('top')
+    getTopMovies() {
+        return this.moviesService.getTopMovies();
+    }
+
     @Get(':id')
-    findOne(@Param('id') id: string) {
+    findOne(@Param('id', ParseIntPipe) id: number) {
         return this.moviesService.findOne(+id);
     }
 
     @UseGuards(AuthGuard)
     @Post(':id/rate')
-    rate(@Param('id') id: string, @Body('rating') rating: number, @Req() req: Request) {
+    rate(@Param('id', ParseIntPipe) id: number, @Body('rating', ParseIntPipe) rating: number, @Req() req: Request) {
         return this.moviesService.rate(+id, rating, req['user'].id);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
+    remove(@Param('id', ParseIntPipe) id: number) {
         return this.moviesService.remove(+id);
     }
 }

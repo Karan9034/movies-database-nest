@@ -67,7 +67,22 @@ export class MoviesService {
         })
     }
 
-    async getAllRatings() {
-        return await this.prisma.rating.findMany();
+    async getRating(movieId: number) {
+        return await this.prisma.rating.findMany({
+            where: {
+                movieId
+            }
+        });
     }
+
+
+    async getTopMovies() {
+        return await this.prisma.$queryRaw`
+            SELECT *, temp.avg_rating FROM "Movie" LEFT JOIN
+                (SELECT "movieId", AVG(value) as avg_rating FROM "Rating" GROUP BY "movieId") temp
+            ON "Movie".id = temp."movieId"
+            ORDER BY temp.avg_rating DESC
+        `
+    }
+
 }
